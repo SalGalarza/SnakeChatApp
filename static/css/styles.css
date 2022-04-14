@@ -1,1 +1,34 @@
+body{
+    margin:0px;
+    font-family: geostar fill;
+    background-color: #1B2B64;
+}
 
+.header{
+    box-shadow: 0px 6px 8px #C9D5FF;
+    background-color: #C9D5FF;
+}
+
+.main{
+    color: white;
+    margin-top: 75px;
+    margin-left: 50px;
+}
+
+.section_title{
+    margin-left: 75px;
+    font-size: 50px;
+}
+
+.section_description{
+    margin-left: 150px;
+    margin-top: 50px;
+    margin-bottom: 150px;
+}
+
+button{
+    height: 90px;
+    width: 200px;
+    border-radius: 10px;
+    background-color: #C9D5FF;
+}
