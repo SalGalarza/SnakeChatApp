@@ -55,7 +55,44 @@
           <div>
               <h4>Chat</h4>
               <span>Chat with friends here</span>
-              <input type="text">
+
+
+			  {% for i, j in message %}
+			  <div>
+					{{ i }}: {{ j }}
+				</div>
+				{% endfor %}
+			  
+			  <!-- <table>
+				{% for i in message %}
+					  {% set item_1 = i %}
+					  {% set item_2 = username[loop.index] %}
+					 <tr>
+						   <td> {{ item_1 }} </td>
+						   <td>  {{ item_2 }} </td>
+					</tr>
+				{% endfor %}
+			</table> -->
+			  <!-- {% for e in message %}
+			  <div>
+				 {{e}}
+			  </div>
+			  {% endfor %}
+
+			  
+			  {% for u in username %}
+			  <div>
+				 {{u}}
+			  </div>
+			  {% endfor %} -->
+
+
+		<form action="snakechat" method="post">
+			<input type="text" name="name">
+			<button type="submit">submit</button>
+		</form>
+
+
           </div>
         </div>
       </section>
@@ -302,6 +339,10 @@ function animateDiv(myclass){
     
 };
 		</script>
+
+
+
+
 
   </body>
 </html>
