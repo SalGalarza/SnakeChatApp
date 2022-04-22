@@ -1,6 +1,9 @@
 import os
+
+# from numpy import broadcast
 import pyrebase
-from flask import Flask, session, render_template, request
+from flask import Flask, session, render_template, request, redirect
+# from flask_socketio import SocketIO, send
 
 app = Flask(__name__)
 
@@ -15,11 +18,15 @@ config = {
     "measurementId": "G-K4QLTWEVN3"
 }
 
+#sessions
+
 firebase = pyrebase.initialize_app(config)
 auth = firebase.auth()
 db = firebase.database()
 
-user = {"is_logged_in": False, "name": "", "email": "", "uid": ""}
+app.secret_key = 'ilikepie'
+# socketio = SocketIO(app)
+# user = {"is_logged_in": False, "name": "", "email": "", "uid": ""}
 
 scores = {
     "Sal": 32,
@@ -30,6 +37,22 @@ sorted_scores = dict( sorted(scores.items(),
                             key=lambda item: item[1],
                             reverse=True))
 
+messages = db.child('messages').get()
+mesg = messages.val()
+
+sender = db.child('sender').get()
+snd = sender.val()
+
+pkg = zip(snd.values(), mesg.values())
+
+# @app.route("/chat")
+# @socketio.on('message')
+# def handleMssage(msg):
+#     print('Message: ' + msg)
+#     send(msg, broadcast=True)
+    # return render_template("chat.html")
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -37,13 +60,34 @@ def index():
 @app.route("/snakechat", methods=['GET', 'POST'])
 def snakechat():
 
-    if user["is_logged_in"] == True:
+    try:
 
-        global scores
-        global sorted_scores
+        if session["is_logged_in"] == True:
 
-        return render_template("snakechat.html", sorted_scores=sorted_scores, email = user["email"], name = user["name"])
-    else:
+            global scores
+            global sorted_scores
+
+            if request.method == 'POST':
+                name = request.form['name']
+
+                db.child('messages').push(name)
+                db.child('sender').push(session["email"])
+
+                messages = db.child('messages').get()
+                sender = db.child('sender').get()
+
+                mesg = messages.val()
+                snd = sender.val()
+
+                pkg = zip(snd.values(), mesg.values())
+                return render_template("snakechat.html", sorted_scores=sorted_scores, email = session["email"], message = pkg)
+
+            else:
+                return render_template("snakechat.html", sorted_scores=sorted_scores, email = session["email"], message = pkg)
+    except Exception as e:
+        # else:
+        print("WHYYY")
+        print(e)
         return render_template("index.html")
 
 
@@ -57,27 +101,28 @@ def signup():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        name = request.form['name']
+        # name = request.form['name']
         try:
             auth.create_user_with_email_and_password(email, password)
             user_session = auth.sign_in_with_email_and_password(email, password)
-
+            # session['user'] = email
             global user
-            user["is_logged_in"] = True
-            user["email"] = user_session["email"]
-            user["uid"] = user_session["localId"]
-            user["name"] = name
+            session["is_logged_in"] = True
+            session["email"] = user_session["email"]
+            session["uid"] = user_session["localId"]
+            # session["name"] = name
             # data = {"name": name, "email": email}
             # db.child("users").child(user["uid"]).set(data)
-
-            return render_template("snakechat.html", sorted_scores=sorted_scores)
+            return render_template("snakechat.html", sorted_scores=sorted_scores, email = session["email"], message = pkg)
         except:
             print("Error Creating Account")
             return render_template("signup.html")
     else:
-        if user["is_logged_in"] == True:
-            return render_template("snakechat.html", sorted_scores=sorted_scores, email = user["email"], name = user["name"])
-        else:
+        try:
+            if session["is_logged_in"] == True:
+                return render_template("snakechat.html", sorted_scores=sorted_scores, email = session["email"], message = pkg)
+        except:
+            # else:
             return render_template("signup.html")
 
 @app.route("/signin", methods=['GET', 'POST'])
@@ -90,23 +135,36 @@ def signin():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        print("waat")
         try:
             user_session = auth.sign_in_with_email_and_password(email, password)
+            session['user'] = email
+
             global user
-            user["is_logged_in"] = True
-            user["email"] = user_session["email"]
-            user["uid"] = user_session["localId"]
+            session["is_logged_in"] = True
+            session["email"] = user_session["email"]
+            session["uid"] = user_session["localId"]
             # data = db.child("users").get()
             # user["name"] = data.val()[user["uid"]]["name"]
-            return render_template("snakechat.html", sorted_scores=sorted_scores, email = user["email"], name = user["name"])
+            return snakechat()
+            # return render_template("snakechat.html", sorted_scores=sorted_scores, email = session["email"])
         except:
             print("Check credentials")
             return render_template("signin.html")
 
     else:
-        if user["is_logged_in"] == True:
-            return render_template("snakechat.html", sorted_scores=sorted_scores, email = user["email"], name = user["name"])
-        else:
+        try:
+            if session["is_logged_in"] == True:
+                messages = db.child('messages').get()
+                mesg = messages.val()
+
+                sender = db.child('sender').get()
+                snd = sender.val()
+
+                pkg = zip(snd.values(), mesg.values())
+                return render_template("snakechat.html", sorted_scores=sorted_scores, email = session["email"], message = pkg)
+        except:
+            # else:
             return render_template("signin.html")
 
 
@@ -121,7 +179,11 @@ def signout():
     #     # user["uid"] == ""
     #     return render_template("index.html")
     # else:
-    user = {"is_logged_in": False, "name": "", "email": "", "uid": ""}
+    session.pop('is_logged_in')
+    session.pop('email')
+    session.pop('uid')
+
+    # user = {"is_logged_in": False, "name": "", "email": "", "uid": ""}
     return render_template("index.html")
 
 @app.errorhandler(404) 
@@ -138,4 +200,5 @@ if __name__ == '__main__':
     # the "static" directory. See:
     # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
     # App Engine itself will serve those files as configured in app.yaml.
+    # socketio.run(app)
     app.run(host='127.0.0.1', port=8080, debug=True)

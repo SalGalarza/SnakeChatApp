@@ -4,3 +4,4 @@ requests==2.*
 google.cloud==0.34.0
 # google.cloud.vision==0.41.0
 pyrebase==3.*
+flask_socketio==3.3.2
