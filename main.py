@@ -33,17 +33,14 @@ app.secret_key = 'ilikepie'
 #     "Escher": 31,
 #         }
 
-
-# scores2 = db.child('scores').get()
-# sorted_scores = scores2.val()
-
 new_messages = []
 
-
-
-# sorted_scores = dict( sorted(scores2.items(),
+# sorted_scores = dict( sorted(scores.items(),
 #                             key=lambda item: item[1],
 #                             reverse=True))
+
+scores = db.child('scores').get()
+sorted_scores = scores.val()
 
 messages = db.child('messages').get()
 mesg = messages.val()
@@ -135,9 +132,16 @@ def snakechat():
             global sorted_scores
 
             if request.method == 'POST':
-                name = request.form['name']
+                print("here??????")
 
-                db.child('messages').push(name)
+                try:
+                    name = request.form['name']
+                    db.child('messages').push(name)
+                except:
+                    return render_template("snakechat.html", sorted_scores=sorted_scores, email = session["email"], message = pkg)
+
+
+
                 db.child('sender').push(session["email"])
 
                 messages = db.child('messages').get()
@@ -187,15 +191,14 @@ def signup():
             # session["name"] = name
             # data = {"name": name, "email": email}
             # db.child("users").child(user["uid"]).set(data)
-            # db.child('scores').push(session["email"])
-            return render_template("snakechat.html", sorted_scores=sorted_scores, email = session["email"], message = pkg)
+            return snakechat()
         except:
             print("Error Creating Account")
             return render_template("signup.html")
     else:
         try:
             if session["is_logged_in"] == True:
-                return render_template("snakechat.html", sorted_scores=sorted_scores, email = session["email"], message = pkg)
+                return snakechat()
         except:
             # else:
             return render_template("signup.html")
@@ -233,6 +236,7 @@ def signin():
             if session["is_logged_in"] == True:
                 messages = db.child('messages').get()
                 mesg = messages.val()
+
 
                 sender = db.child('sender').get()
                 snd = sender.val()
@@ -282,7 +286,6 @@ def snakegame():
         return render_template("snakegame.html", sorted_scores=sorted_scores, email = session["email"])
     else: 
         return signin()
-
 
 
 @app.errorhandler(404) 
