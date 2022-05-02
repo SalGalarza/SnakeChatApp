@@ -33,6 +33,10 @@ scores = {
     "Escher": 31,
         }
 
+# scores2 = db.child('scores').get()
+# score2 = scores2.val()
+# print(score2)
+
 sorted_scores = dict( sorted(scores.items(),
                             key=lambda item: item[1],
                             reverse=True))
@@ -73,7 +77,7 @@ def snakechat():
                 db.child('messages').push(name)
                 db.child('sender').push(session["email"])
 
-                messages = db.child('messages').get()
+                messages = db.child('messages').get() 
                 sender = db.child('sender').get()
 
                 mesg = messages.val()
@@ -189,7 +193,7 @@ def signout():
 @app.route("/snakegame")
 def snakegame():
 
-    return render_template("snakegame.html")
+    return render_template("snakegame.html", sorted_scores=sorted_scores, email = session["email"])
 
 @app.errorhandler(404) 
 def invalid_route(e): 

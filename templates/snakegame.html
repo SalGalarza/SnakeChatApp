@@ -30,6 +30,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@100;300&display=swap" rel="stylesheet">
 
+
+
   </head>
   <body  data-spy="scroll" data-target=".site-navbar-target" data-offset="300">
 	<!-- <div id="particles-js"></div> -->
@@ -40,12 +42,13 @@
 	  <a href="signout" class="header_button">Sign Out</a>
   	</section>
 
-    <section onload= "score();" style="margin-bottom: 100px; margin-top: 0px;" class="main" id="blog-section">
+
+    <section onload= "update_score();" style="margin-bottom: 100px; margin-top: 0px;" class="main" id="blog-section">
       <div class="container">
         <div class="row justify-content-center mb-5 pb-5">
           <div style="min-width: 100% !important;" class="col-md-7 heading-section text-center ftco-animate">
 			<h1 style="margin-bottom: 50px;" class="big big-2">Snake Game</h1>
-			<h2 style="color: #125688;">Welcome to Snake!</h2>
+			<h2 style="color: #125688; display:inline-block">Welcome to Snake</h2> <h2 id="email" style="display:inline-block;">{{ email }}</h2>
 
 			  
 			<p style="margin-top: 75px;" >Try to beat my high score :)</p>
@@ -116,7 +119,7 @@
   <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-database.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-analytics.js"></script>
 
-  <script src="static/js/messages.js"></script>
+  <!-- <script src="static/js/messages.js"></script>
 
 
   <script src="static/js/jquery.min.js"></script>
@@ -132,10 +135,33 @@
   <script src="static/js/jquery.animateNumber.min.js"></script>
   <script src="static/js/scrollax.min.js"></script>
 
-  <script src="static/js/main.js"></script>
+  <script src="static/js/main.js"></script> -->
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-firestore.js";
+        
+
+
+        const firebaseConfig = {
+            "apiKey": "AIzaSyC71CWprW8zUaL0Td4w-YIoO7V_NxGgX-Y",
+            "authDomain": "snakechat-316c0.firebaseapp.com",
+            "databaseURL": "https://snakechat-316c0-default-rtdb.firebaseio.com",
+            "projectId": "snakechat-316c0",
+            "storageBucket": "snakechat-316c0.appspot.com",
+            "messagingSenderId": "563952925760",
+            "appId": "1:563952925760:web:7695afd6d2fa34b236f3a5",
+            "measurementId": "G-K4QLTWEVN3"
+        }
+
+        firebase.initializeApp(firebaseConfig);
+
+        // Get a reference to the database service
+        var database = firebase.database();
+
 
 		window.addEventListener("keydown", function(e) {
 			// space and arrow keys
@@ -160,6 +186,7 @@
 			document.location.reload(true)
 		 }
 		
+        var px,py,gs,tc,ax,ay,xv,yv,trail,tail,score,canv,ctx,email,highScore;
 		px=py=10;
 		gs=tc=20;
 		ax=ay=15;
@@ -167,6 +194,18 @@
 		trail=[];
 		tail = 2;
 		score = 0;
+        email = document.getElementById("email").innerHTML;
+        firebase.database().ref('scores').on('value', (snap)=>{
+            highScore = snap.val()[email];
+        });
+
+        //firebase won't accept things that have usernames that contain these characters
+        email = email.replaceAll(".","");
+        email = email.replaceAll("#","");
+        email = email.replaceAll("$","");
+        email = email.replaceAll("[","");
+        email = email.replaceAll("]","");
+
 		function game() {
 			px+=xv;
 			py+=yv;
@@ -175,24 +214,52 @@
 				document.getElementById('gc').style.visibility = 'hidden';
 				// document.getElementById('newgamebutton').style.visibility = 'visible';
 				document.getElementById('playagainbutton').style.visibility = 'visible';
+
+                if(highScore == undefined || score > highScore){
+                    firebase.database().ref('scores/').set({
+                        [email]: score
+                    });
+                }
+                
+
+                
+                
 			}
 			if(px>tc-1) {
 				px= 0;
 				document.getElementById('gc').style.visibility = 'hidden';
 				// document.getElementById('newgamebutton').style.visibility = 'visible';
 				document.getElementById('playagainbutton').style.visibility = 'visible';
+                
+                if(highScore == undefined || score > highScore){
+                    firebase.database().ref('scores/').set({
+                        [email]: score
+                    });
+                }
 			}
 			if(py<0) {
 				py= tc-1;
 				document.getElementById('gc').style.visibility = 'hidden';
 				// document.getElementById('newgamebutton').style.visibility = 'visible';
 				document.getElementById('playagainbutton').style.visibility = 'visible';
+                
+                if(highScore == undefined || score > highScore){
+                    firebase.database().ref('scores/').set({
+                        [email]: score
+                    });
+                }
 			}
 			if(py>tc-1) {
 				px= 0;
 				document.getElementById('gc').style.visibility = 'hidden';
 				// document.getElementById('newgamebutton').style.visibility = 'visible';
 				document.getElementById('playagainbutton').style.visibility = 'visible';
+                
+                if(highScore == undefined || score > highScore){
+                    firebase.database().ref('scores/').set({
+                        [email]: score
+                    });
+                }
 			}
 		
 			ctx.fillStyle="black";
@@ -245,20 +312,21 @@
 					break;
 			}
 		}
-		function score() {
+		function update_score() {
 			var score = 0;
 			document.getElementById("score").innerHTML = score;
+            console.log(score)
 		}
 		
 		</script>
 		
 		<script>
 			$(document).ready(function(){
-    animateDiv('.a');
-    animateDiv('.b');
-    animateDiv('.c');
-    animateDiv('.d');
-});
+                animateDiv('.a');
+                animateDiv('.b');
+                animateDiv('.c');
+                animateDiv('.d');
+            });
 
 function makeNewPosition(){
     
