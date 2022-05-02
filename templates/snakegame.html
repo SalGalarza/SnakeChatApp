@@ -47,17 +47,17 @@
       <div class="container">
         <div class="row justify-content-center mb-5 pb-5">
           <div style="min-width: 100% !important;" class="col-md-7 heading-section text-center ftco-animate">
-			<h1 style="margin-bottom: 50px;" class="big big-2">Snake Game</h1>
-			<h2 style="color: #125688; display:inline-block">Welcome to Snake</h2> <h2 id="email" style="display:inline-block;">{{ email }}</h2>
+			<center style="color: white; font-size:50px; margin-top: 30px;">Snake Game</center>
+			<h2 style="color: white; display:inline-block; margin-left:37%;">Welcome to Snake  </h2> <h2 id="email" style="display:inline-block;">{{ email }}</h2>
 
 			  
-			<p style="margin-top: 75px;" >Try to beat my high score :)</p>
-			<h2 style="color: #125688;"> Score: <span id="score"> 0 </span> </h2>
+			<center style="margin-top: 5px;" >Try to beat the high score ;)</center>
+			<h2 style="color: yellow; font-size:40px; text-align:center;"> Score: <span id="score"> 0 </span> </h2>
 		  </div>
         </div>
-        <div style="margin-top: 50px; margin-bottom: 50px;" class="row d-flex">
+        <div style="margin-top: 20px; margin-bottom: 50px;" class="row d-flex">
 		
-            <table class="scoreTable">
+            <table class="scoreTable" style="text-align:left; align-items: left;">
                 <tr>
                   <th class="scoreData">Name</th>
                   <th class="scoreData">Score</th>
@@ -69,13 +69,13 @@
                             {{ score }}
                         </td>
                         <td class="scoreData">
-                            {{ sorted_scores[score] }}
+                            {{ sorted_scores[score]['score'] }}
                         </td>
                      </tr>
                      {% endfor %}
               </tbody>
             </table>
-            
+            <br>
 		  <form class="startgame" action="#" method="post">
 			<!-- <label><b>Name:</b></label> -->
 			<input type="text" placeholder="Name" id="nameinput" class="snakename" name="playername">
@@ -172,6 +172,7 @@
 		
 		document.getElementById('playbutton').onclick = function() {
             document.getElementById('playbutton').style.visibility = 'hidden';
+            var name = document.getElementById('nameinput').innerHTML;
             document.getElementById('nameinput').style.visibility = 'hidden';
 			document.getElementById('gc').style.visibility = 'visible';
 			canv=document.getElementById("gc");
@@ -195,16 +196,20 @@
 		tail = 2;
 		score = 0;
         email = document.getElementById("email").innerHTML;
-        firebase.database().ref('scores').on('value', (snap)=>{
-            highScore = snap.val()[email];
-        });
-
-        //firebase won't accept things that have usernames that contain these characters
+        //firebase won't accept things that have usernames that contain these characters:
         email = email.replaceAll(".","");
         email = email.replaceAll("#","");
         email = email.replaceAll("$","");
         email = email.replaceAll("[","");
         email = email.replaceAll("]","");
+        firebase.database().ref('scores').on('value', (snap)=>{
+            highScore= snap.val()[email];
+            if(highScore != undefined){
+                highScore = highScore['score'];
+            }
+        });
+
+        
 
 		function game() {
 			px+=xv;
@@ -214,52 +219,30 @@
 				document.getElementById('gc').style.visibility = 'hidden';
 				// document.getElementById('newgamebutton').style.visibility = 'visible';
 				document.getElementById('playagainbutton').style.visibility = 'visible';
-
-                if(highScore == undefined || score > highScore){
-                    firebase.database().ref('scores/').set({
-                        [email]: score
-                    });
-                }
-                
-
-                
-                
+                highScore = high_score(highScore, score, name);
 			}
+
 			if(px>tc-1) {
 				px= 0;
 				document.getElementById('gc').style.visibility = 'hidden';
 				// document.getElementById('newgamebutton').style.visibility = 'visible';
 				document.getElementById('playagainbutton').style.visibility = 'visible';
-                
-                if(highScore == undefined || score > highScore){
-                    firebase.database().ref('scores/').set({
-                        [email]: score
-                    });
-                }
+                highScore = high_score(highScore, score, email);
 			}
 			if(py<0) {
 				py= tc-1;
 				document.getElementById('gc').style.visibility = 'hidden';
 				// document.getElementById('newgamebutton').style.visibility = 'visible';
 				document.getElementById('playagainbutton').style.visibility = 'visible';
+                highScore = high_score(highScore, score, email);
                 
-                if(highScore == undefined || score > highScore){
-                    firebase.database().ref('scores/').set({
-                        [email]: score
-                    });
-                }
 			}
 			if(py>tc-1) {
 				px= 0;
 				document.getElementById('gc').style.visibility = 'hidden';
 				// document.getElementById('newgamebutton').style.visibility = 'visible';
 				document.getElementById('playagainbutton').style.visibility = 'visible';
-                
-                if(highScore == undefined || score > highScore){
-                    firebase.database().ref('scores/').set({
-                        [email]: score
-                    });
-                }
+                highScore = high_score(highScore, score, email);
 			}
 		
 			ctx.fillStyle="black";
@@ -315,8 +298,20 @@
 		function update_score() {
 			var score = 0;
 			document.getElementById("score").innerHTML = score;
-            console.log(score)
 		}
+
+        function high_score(highScore, score, email){
+
+            if(highScore == undefined || score > highScore){
+                firebase.database().ref('scores/' + email).set({
+                    score: score
+                });
+                return score;
+            }
+            else{
+                return highScore;
+            }
+        }
 		
 		</script>
 		

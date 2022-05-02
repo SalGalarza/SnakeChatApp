@@ -28,18 +28,18 @@ app.secret_key = 'ilikepie'
 # socketio = SocketIO(app)
 # user = {"is_logged_in": False, "name": "", "email": "", "uid": ""}
 
-scores = {
-    "Sal": 32,
-    "Escher": 31,
-        }
+# scores = {
+#     "Sal": 32,
+#     "Escher": 31,
+#         }
 
 # scores2 = db.child('scores').get()
-# score2 = scores2.val()
-# print(score2)
+# sorted_scores = scores2.val()
 
-sorted_scores = dict( sorted(scores.items(),
-                            key=lambda item: item[1],
-                            reverse=True))
+
+# sorted_scores = dict( sorted(scores2.items(),
+#                             key=lambda item: item[1],
+#                             reverse=True))
 
 messages = db.child('messages').get()
 mesg = messages.val()
@@ -117,6 +117,7 @@ def signup():
             # session["name"] = name
             # data = {"name": name, "email": email}
             # db.child("users").child(user["uid"]).set(data)
+            # db.child('scores').push(session["email"])
             return render_template("snakechat.html", sorted_scores=sorted_scores, email = session["email"], message = pkg)
         except:
             print("Error Creating Account")
@@ -192,8 +193,12 @@ def signout():
 
 @app.route("/snakegame")
 def snakegame():
+    scores = db.child('scores').get()
+    sorted_scores = {}
+    if scores != None:
+        sorted_scores = scores.val()
 
-    return render_template("snakegame.html", sorted_scores=sorted_scores, email = session["email"])
+    return render_template("snakegame.html", sorted_scores=sorted_scores, email = session["user"])
 
 @app.errorhandler(404) 
 def invalid_route(e): 
