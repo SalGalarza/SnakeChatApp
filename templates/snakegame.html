@@ -52,6 +52,8 @@
 			<center style="color: white; font-size:30px;">Welcome to Snake</center> <h2 id="email" style="text-align:center; margin:0px;">{{ email }}</h2>
 			<br>  
 			<center >Try to beat the high score ;)</center>
+            <center> Your current high score is:</center>
+            <a id="currentHighScore">{{ highScore }}</a>
 			<h2 style="color: yellow; font-size:40px; text-align:center;"> Score: <span id="score"> 0 </span> </h2>
 		  </div>
         </div>
@@ -146,7 +148,8 @@
 			document.location.reload(true)
 		 }
 		
-        var px,py,gs,tc,ax,ay,xv,yv,trail,tail,score,canv,ctx,email,highScore;
+        var px,py,gs,tc,ax,ay,xv,yv,trail,tail,score,canv,ctx,email;
+        var highScore;
 		px=py=10;
 		gs=tc=20;
 		ax=ay=15;
@@ -155,20 +158,31 @@
 		tail = 2;
 		score = 0;
         email = document.getElementById("email").innerHTML;
+        highScore = document.getElementById("currentHighScore").innerHTML;
         //firebase won't accept things that have usernames that contain these characters:
         email = email.replaceAll(".","");
         email = email.replaceAll("#","");
         email = email.replaceAll("$","");
         email = email.replaceAll("[","");
         email = email.replaceAll("]","");
-        firebase.database().ref('scores').on('value', (snap)=>{
-            highScore= snap.val()[email];
-            // if(highScore != undefined){
-            //     highScore = highScore['score'];
-            // }
-        });
+        // console.log(firebase.database().ref('scores/' + email).get())
+
+        // firebase.database().ref('scores').on('value', (snap)=>{
+        //     console.log("reading high score")
+        //     var highScore= snap.val()[email]['score'];
+        //     // console.log("snap")
+        //     // console.log(snap.val()[email]['score'])
+        //     // console.log(highScore)
+        //     //.val()[email]
+        //     // if(highScore != undefined){
+        //     //     highScore = highScore['score'];
+        //     // }
+        //     updateHighScore(highScore)
+        // });
 
         
+        console.log("current high score")
+        console.log(highScore)
 
 		function game() {
 			px+=xv;
@@ -177,27 +191,44 @@
 				px= tc-1;
 				document.getElementById('gc').style.visibility = 'hidden';
 				document.getElementById('playagainbutton').style.visibility = 'visible';
-                highScore = high_score(highScore, score, email);
+                if(score > highScore){
+                    console.log("went up");
+                    high_score(highScore, score, email)
+                    highScore = score;
+                }  
 			}
 
 			if(px>tc-1) {
 				px= 0;
 				document.getElementById('gc').style.visibility = 'hidden';
 				document.getElementById('playagainbutton').style.visibility = 'visible';
-                highScore = high_score(highScore, score, email);
+                if(score > highScore){
+                    console.log("went up");
+                    high_score(highScore, score, email)
+                    highScore = score;
+                }
+                
 			}
 			if(py<0) {
 				py= tc-1;
 				document.getElementById('gc').style.visibility = 'hidden';
 				document.getElementById('playagainbutton').style.visibility = 'visible';
-                highScore = high_score(highScore, score, email);
+                if(score > highScore){
+                    console.log("went up");
+                    high_score(highScore, score, email)
+                    highScore = score;
+                }
                 
 			}
 			if(py>tc-1) {
 				px= 0;
 				document.getElementById('gc').style.visibility = 'hidden';
 				document.getElementById('playagainbutton').style.visibility = 'visible';
-                highScore = high_score(highScore, score, email);
+                if(score > highScore){
+                    console.log("went up");
+                    high_score(highScore, score, email)
+                    highScore = score;
+                }
 			}
 		
 			ctx.fillStyle="black";
@@ -255,18 +286,20 @@
 		}
 
         function high_score(highScore, score, email){
-            if(highScore != undefined){
-                highScore = highScore['score'];
-            }
-            if(highScore == undefined || score > highScore){
-                firebase.database().ref('scores/' + email).set({
-                    score: score
-                });
-                return score;
-            }
-            else{
+            firebase.database().ref('scores/' + email).set({
+                score: score
+            });
+            return score;    
+        }
+
+        function updateHighScore(){
+            var ref = firebase.database().ref("scores/" + email + "/score");
+            ref.on("value", function(snapshot) {
+                console.log("getting stuff")
+                console.log(snapshot.val());
+                highScore = snapshot.val();
                 return highScore;
-            }
+            }, );
         }
 		
 		</script>
