@@ -186,6 +186,11 @@ def signout():
     # user = {"is_logged_in": False, "name": "", "email": "", "uid": ""}
     return render_template("index.html")
 
+@app.route("/snakegame")
+def snakegame():
+
+    return render_template("snakegame.html")
+
 @app.errorhandler(404) 
 def invalid_route(e): 
     return render_template("pagenotfound.html")

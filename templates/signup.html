@@ -6,22 +6,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
     <link href='https://fonts.googleapis.com/css?family=Monoton' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/styles.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@100;300&display=swap" rel="stylesheet">
 
   </head>
-  <body style="background: #ffd23e;">
+  <body>
+    <section class="header">
+      <a href="/" style="font-size:50px; font-family: exo 2; color:black; text-decoration:none;">Snake</a>
+      <a style="float:right; margin-top: 30px; font-size: 20px;">a snake game and a chat by Sal and Escher</a>
+  </section>
+  <div style="padding:30px;"></div>
+  <section class="main">
     <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar ftco-navbar-light site-navbar-target" id="ftco-navbar">
 	    <div class="container">
-	      <a  class="navbar-brand" href="{{ '/' }}"><span>Snake Chat</span></a>
-
-	      <div class="collapse navbar-collapse" id="ftco-nav">
-	        <ul class="navbar-nav nav ml-auto">
-            <li class="nav-item"><a href="{{'/'}}" class="nav-link"><span>Home</span></a></li>
+	      <center style="text-align:center; color:white; font-size:50px;"><span>Welcome to Snake Chat!</span></center>
+           <!-- <li class="nav-item"><a href="{{'/'}}" class="nav-link"><span>Home</span></a></li> -->
             
 	        </ul>
 	      </div>
 	    </div>
 	  </nav>
+  </section>
 	<!-- <div id="particles-js"></div> -->
 	  
   <section class="hero-wrap js-fullheight">
@@ -31,12 +39,14 @@
     <!-- <div class="overlay"></div>
     <div class="overlayleft"></div> -->
       <!-- <img style="float:right; max-width: 100%; max-height: auto;" src="images/stand.jpg"> -->
-        <div class="container">
+        <div class="container" style="padding: 75px; text-align:center;">
             <form action="signup" method="POST">
                 <!-- <input type="text" id="name" class="fadeIn second" name="name" placeholder="name"> -->
-                <input type="email" id="login" class="fadeIn second" name="email" placeholder="email">
-                <input type="password" id="password" class="fadeIn third" name="password" placeholder="password">
-                <input type="submit" class="fadeIn fourth" value="Sign Up">
+                <input type="email" id="login" class="text_field" size=30 name="email" placeholder="email">
+                <br><br>
+                <input type="password" id="password" class="text_field"  size=30 name="password" placeholder="password">
+                <br><br><br>
+                <input type="submit" class="button" value="Sign Up">
               </form>
           </div>
 
