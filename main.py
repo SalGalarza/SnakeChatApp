@@ -278,9 +278,14 @@ def signout():
 @app.route("/snakegame")
 def snakegame():
     scores = db.child('scores').get()
+    sorted_scores_unordered = {}
     sorted_scores = {}
     if scores != None:
-        sorted_scores = scores.val()
+        sorted_scores_unordered = scores.val()
+        for email in sorted_scores_unordered:
+            sorted_scores[email] = sorted_scores_unordered[email]['score']
+        sorted_scores = dict(sorted(sorted_scores.items(), key=lambda item: item[1], reverse=True))
+        print(sorted_scores)
 
     if session["is_logged_in"] == True:
         return render_template("snakegame.html", sorted_scores=sorted_scores, email = session["email"])

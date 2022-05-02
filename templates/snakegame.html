@@ -38,8 +38,8 @@
 	
 	<section class="header">
       <a href="/" style="font-size:50px; font-family: exo 2; color:black; text-decoration:none;">Snake Chat</a>
-      <a style="float:right; margin-top: 30px; font-size: 20px; margin-right:30px;">a snake game and a chat by Sal and Escher</a>
 	  <a href="signout" class="header_button">Sign Out</a>
+      <a href="snakechat" class="header_button" style="width:200px;">Snake Chat</a>
   	</section>
 
 
@@ -48,16 +48,16 @@
         <div class="row justify-content-center mb-5 pb-5">
           <div style="min-width: 100% !important;" class="col-md-7 heading-section text-center ftco-animate">
 			<center style="color: white; font-size:50px; margin-top: 30px;">Snake Game</center>
-			<h2 style="color: white; display:inline-block; margin-left:37%;">Welcome to Snake  </h2> <h2 id="email" style="display:inline-block;">{{ email }}</h2>
-
-			  
-			<center style="margin-top: 5px;" >Try to beat the high score ;)</center>
+            <br>
+			<center style="color: white; font-size:30px;">Welcome to Snake</center> <h2 id="email" style="text-align:center; margin:0px;">{{ email }}</h2>
+			<br>  
+			<center >Try to beat the high score ;)</center>
 			<h2 style="color: yellow; font-size:40px; text-align:center;"> Score: <span id="score"> 0 </span> </h2>
 		  </div>
         </div>
         <div style="margin-top: 20px; margin-bottom: 50px;" class="row d-flex">
 		
-            <table class="scoreTable" style="text-align:left; align-items: left;">
+            <table class="scoreTable" style="text-align:left; margin-left:auto; margin-right:auto;">
                 <tr>
                   <th class="scoreData">Name</th>
                   <th class="scoreData">Score</th>
@@ -69,44 +69,21 @@
                             {{ score }}
                         </td>
                         <td class="scoreData">
-                            {{ sorted_scores[score]['score'] }}
+                            {{ sorted_scores[score] }}
                         </td>
                      </tr>
                      {% endfor %}
               </tbody>
             </table>
             <br>
-		  <form class="startgame" action="#" method="post">
+		  <form class="startgame" action="#" method="post" style="text-align:center;">
 			<!-- <label><b>Name:</b></label> -->
-			<input type="text" placeholder="Name" id="nameinput" class="snakename" name="playername">
+			<!--<input type="text" placeholder="Name" id="nameinput" class="snakename" name="playername"> -->
 			<input type="hidden" id="playerscore" name="playerscore" value="0">
 			<button type="button" class="smaller_button" id="playbutton" style="background-color: #C9D5FF; color: black;">Play</button>
             <button type="button" class="smaller_button" id="playagainbutton" style="background-color: #C9D5FF; color: black;">Play Again</button>
           </form>
-
-
-
-		
-		  <!-- <table class="scoreTable">
-			  <tr class="trsnake">
-				<th class="thsnake">Name</th>
-				<th class="thsnake">Score</th>
-			  </tr>
-			<tbody>
-				  {% for scores in scores %}
-				   <tr class="trsnake">
-					  <td class="tdsnake">
-						  {{ scores.name }}
-					  </td>
-					  <td class="tdsnake">
-						   {{ scores.score }}
-					  </td>
-				   </tr>
-				   {% endfor %}
-			</tbody>
-		  </table> -->
-
-			<canvas id="gc" width="400" height="400"></canvas>
+			<canvas id="gc" width="400" height="400" ></canvas>
         </div>
       </div>
     </section>
@@ -118,21 +95,6 @@
   <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-database.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-analytics.js"></script>
-
-  <!-- <script src="static/js/messages.js"></script>
-  <script src="static/js/jquery.min.js"></script>
-  <script src="static/js/jquery-migrate-3.0.1.min.js"></script>
-  <script src="static/js/popper.min.js"></script>
-  <script src="static/js/bootstrap.min.js"></script>
-  <script src="static/js/jquery.easing.1.3.js"></script>
-  <script src="static/js/jquery.waypoints.min.js"></script>
-  <script src="static/js/jquery.stellar.min.js"></script>
-  <script src="static/js/owl.carousel.min.js"></script>
-  <script src="static/js/jquery.magnific-popup.min.js"></script>
-  <script src="static/js/aos.js"></script>
-  <script src="static/js/jquery.animateNumber.min.js"></script>
-  <script src="static/js/scrollax.min.js"></script>
-  <script src="static/js/main.js"></script> -->
 
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 
@@ -169,8 +131,8 @@
 		
 		document.getElementById('playbutton').onclick = function() {
             document.getElementById('playbutton').style.visibility = 'hidden';
-            var name = document.getElementById('nameinput').innerHTML;
-            document.getElementById('nameinput').style.visibility = 'hidden';
+            //var name = document.getElementById('nameinput').innerHTML;
+            //document.getElementById('nameinput').style.visibility = 'hidden';
 			document.getElementById('gc').style.visibility = 'visible';
 			canv=document.getElementById("gc");
 			ctx=canv.getContext("2d");
@@ -201,9 +163,9 @@
         email = email.replaceAll("]","");
         firebase.database().ref('scores').on('value', (snap)=>{
             highScore= snap.val()[email];
-            if(highScore != undefined){
-                highScore = highScore['score'];
-            }
+            // if(highScore != undefined){
+            //     highScore = highScore['score'];
+            // }
         });
 
         
@@ -214,7 +176,6 @@
 			if(px<0) {
 				px= tc-1;
 				document.getElementById('gc').style.visibility = 'hidden';
-				// document.getElementById('newgamebutton').style.visibility = 'visible';
 				document.getElementById('playagainbutton').style.visibility = 'visible';
                 highScore = high_score(highScore, score, name);
 			}
@@ -222,14 +183,12 @@
 			if(px>tc-1) {
 				px= 0;
 				document.getElementById('gc').style.visibility = 'hidden';
-				// document.getElementById('newgamebutton').style.visibility = 'visible';
 				document.getElementById('playagainbutton').style.visibility = 'visible';
                 highScore = high_score(highScore, score, email);
 			}
 			if(py<0) {
 				py= tc-1;
 				document.getElementById('gc').style.visibility = 'hidden';
-				// document.getElementById('newgamebutton').style.visibility = 'visible';
 				document.getElementById('playagainbutton').style.visibility = 'visible';
                 highScore = high_score(highScore, score, email);
                 
@@ -237,7 +196,6 @@
 			if(py>tc-1) {
 				px= 0;
 				document.getElementById('gc').style.visibility = 'hidden';
-				// document.getElementById('newgamebutton').style.visibility = 'visible';
 				document.getElementById('playagainbutton').style.visibility = 'visible';
                 highScore = high_score(highScore, score, email);
 			}
@@ -251,7 +209,6 @@
 				if(trail[i].x==px && trail[i].y==py) {
 					if (tail>2) {
 					  document.getElementById('gc').style.visibility = 'hidden';
-					  // document.getElementById('newgamebutton').style.visibility = 'visible';
 					  document.getElementById('playagainbutton').style.visibility = 'visible';
 					}
 					else {
@@ -341,10 +298,5 @@ function animateDiv(myclass){
     
 };
 		</script>
-
-
-
-
-
   </body>
 </html>
