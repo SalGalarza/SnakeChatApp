@@ -5,5 +5,6 @@ Hello!
 
 This is Sal Galarza and Escher Campanella
 
-We made Snake Game
+We made Snake Chat!
 
+Check it out: https://snakechat-347121.uc.r.appspot.com/
