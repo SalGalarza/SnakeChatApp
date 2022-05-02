@@ -177,7 +177,7 @@
 				px= tc-1;
 				document.getElementById('gc').style.visibility = 'hidden';
 				document.getElementById('playagainbutton').style.visibility = 'visible';
-                highScore = high_score(highScore, score, name);
+                highScore = high_score(highScore, score, email);
 			}
 
 			if(px>tc-1) {
@@ -255,7 +255,9 @@
 		}
 
         function high_score(highScore, score, email){
-
+            if(highScore != undefined){
+                highScore = highScore['score'];
+            }
             if(highScore == undefined || score > highScore){
                 firebase.database().ref('scores/' + email).set({
                     score: score

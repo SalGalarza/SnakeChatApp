@@ -181,13 +181,16 @@ def signup():
         password = request.form['password']
         # name = request.form['name']
         try:
+            print("ye")
             auth.create_user_with_email_and_password(email, password)
             user_session = auth.sign_in_with_email_and_password(email, password)
+            print("hi")
             # session['user'] = email
             global user
             session["is_logged_in"] = True
             session["email"] = user_session["email"]
             session["uid"] = user_session["localId"]
+            print("hello")
             # session["name"] = name
             # data = {"name": name, "email": email}
             # db.child("users").child(user["uid"]).set(data)
