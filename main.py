@@ -2,7 +2,7 @@ import os
 
 # from numpy import broadcast
 import pyrebase
-from flask import Flask, session, render_template, request, redirect
+from flask import Flask, session, render_template, request, redirect, jsonify
 # from flask_socketio import SocketIO, send
 
 app = Flask(__name__)
@@ -33,8 +33,12 @@ app.secret_key = 'ilikepie'
 #     "Escher": 31,
 #         }
 
+
 # scores2 = db.child('scores').get()
 # sorted_scores = scores2.val()
+
+new_messages = []
+
 
 
 # sorted_scores = dict( sorted(scores2.items(),
@@ -47,7 +51,13 @@ mesg = messages.val()
 sender = db.child('sender').get()
 snd = sender.val()
 
-pkg = zip(snd.values(), mesg.values())
+global pkg
+# pkg = zip(snd.values(), mesg.values())
+all_messages = [mesg[i] for i in mesg]
+all_senders = [snd[i] for i in snd]
+
+just_users = [all_senders[i].split("@")[0] for i in range(len(all_senders))]
+pkg = zip(just_users, all_messages)
 
 # @app.route("/chat")
 # @socketio.on('message')
@@ -61,8 +71,61 @@ pkg = zip(snd.values(), mesg.values())
 def index():
     return render_template("index.html")
 
+
+@app.route("/getmessages", methods=['GET', 'POST'])
+def getmessages():
+
+    global pkg
+    
+    messages = db.child('messages').get()
+    sender = db.child('sender').get()
+
+    mesg = messages.val()
+    snd = sender.val()
+
+    # pkg = zip(snd.values(), mesg.values())
+
+    # print(pkg)
+    # mesg[next(reversed(mesg))],
+    nm = str(snd[next(reversed(snd))]) + " : " + str(mesg[next(reversed(mesg))])
+
+    new_messages.append(nm)
+
+    all_messages = [mesg[i] for i in mesg]
+    all_senders = [snd[i] for i in snd]
+
+    just_users = [all_senders[i].split("@")[0] for i in range(len(all_senders))]
+    pkg = zip(just_users, all_messages)
+
+    ht = ""
+    for i in range(len(all_messages)):
+        ht = ht + "{}: {}<br>".format(all_senders[i].split("@")[0],all_messages[i])
+
+    ht = "<ul>" + ht + "</ul>"
+
+    return ht
+
+    # return "<div>{}</div>".format()
+
+
 @app.route("/snakechat", methods=['GET', 'POST'])
 def snakechat():
+
+    global pkg
+
+    messages = db.child('messages').get()
+    mesg = messages.val()
+
+    sender = db.child('sender').get()
+    snd = sender.val()
+
+    # pkg = zip(snd.values(), mesg.values())
+
+    all_messages = [mesg[i] for i in mesg]
+    all_senders = [snd[i] for i in snd]
+
+    just_users = [all_senders[i].split("@")[0] for i in range(len(all_senders))]
+    pkg = zip(just_users, all_messages)
 
     try:
 
@@ -77,13 +140,19 @@ def snakechat():
                 db.child('messages').push(name)
                 db.child('sender').push(session["email"])
 
-                messages = db.child('messages').get() 
+                messages = db.child('messages').get()
                 sender = db.child('sender').get()
 
                 mesg = messages.val()
                 snd = sender.val()
 
-                pkg = zip(snd.values(), mesg.values())
+                # pkg = zip(snd.values(), mesg.values())
+                all_messages = [mesg[i] for i in mesg]
+                all_senders = [snd[i] for i in snd]
+
+                just_users = [all_senders[i].split("@")[0] for i in range(len(all_senders))]
+                pkg = zip(just_users, all_messages)
+
                 return render_template("snakechat.html", sorted_scores=sorted_scores, email = session["email"], message = pkg)
 
             else:
@@ -101,6 +170,7 @@ def signup():
 
     global scores
     global sorted_scores
+    global pkg
 
     if request.method == 'POST':
         email = request.form['email']
@@ -135,12 +205,13 @@ def signin():
 
     global scores
     global sorted_scores
+    global pkg
 
 
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        print("waat")
+        # print("waat")
         try:
             user_session = auth.sign_in_with_email_and_password(email, password)
             session['user'] = email
@@ -166,8 +237,16 @@ def signin():
                 sender = db.child('sender').get()
                 snd = sender.val()
 
-                pkg = zip(snd.values(), mesg.values())
-                return render_template("snakechat.html", sorted_scores=sorted_scores, email = session["email"], message = pkg)
+                # pkg = zip(snd.values(), mesg.values())
+
+                all_messages = [mesg[i] for i in mesg]
+                all_senders = [snd[i] for i in snd]
+
+                just_users = [all_senders[i].split("@")[0] for i in range(len(all_senders))]
+                pkg = zip(just_users, all_messages)
+
+                
+                return snakechat()
         except:
             # else:
             return render_template("signin.html")
@@ -176,6 +255,7 @@ def signin():
 @app.route("/signout")
 def signout():
     global user
+    global pkg
     # if user["is_logged_in"] == True:
 
     #     user = {"is_logged_in": False, "name": "", "email": "", "uid": ""}
@@ -198,7 +278,12 @@ def snakegame():
     if scores != None:
         sorted_scores = scores.val()
 
-    return render_template("snakegame.html", sorted_scores=sorted_scores, email = session["user"])
+    if session["is_logged_in"] == True:
+        return render_template("snakegame.html", sorted_scores=sorted_scores, email = session["email"])
+    else: 
+        return signin()
+
+
 
 @app.errorhandler(404) 
 def invalid_route(e): 
